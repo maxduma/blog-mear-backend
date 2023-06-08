@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import {registerValidation} from './validation/auth.js';
 import { validationResult } from 'express-validator';
 import UserModel from './models/User.js';
+import checkAuth from './utils/checkAuth.js';
 
 
 mongoose.connect('mongodb+srv://maxduma16:aYYy8AIjTqqYpWAP@cluster1.kehnoa2.mongodb.net/blog?retryWrites=true&w=majority')
@@ -21,7 +22,7 @@ app.use(express.json())
 
 app.post('/auth/login', async (req, res) => {
   try {
-    const user = await UserModel.findOne({email: res.body.email})
+    const user = await UserModel.findOne({email: req.body.email})
     if (!user) {
       return res.status(404).json({
         message: 'User not found'
@@ -29,21 +30,19 @@ app.post('/auth/login', async (req, res) => {
     }
     const isValidPass = await bcrypt.compare(req.body.password, user._doc.passwordHash);
     if (!isValidPass) {
-      return res.status(404).json({
+      return res.status(400).json({
         message: 'Incorrect credentials'
       })
     }
 
-    const token = jwt.sign({
-      _id: user._id
-    },
-     'secret123',
-     {expiresIn: '30d'}
-    );
+    const token = jwt.sign({_id: user._id}, 'secret123', {expiresIn: '30d'});
     const {passwordHash, ...userData} = user._doc;
     res.json({...userData, token});
   } catch (error) {
     console.error(error);
+    res.status(500).json({
+      message: 'Failed login user'
+    });
   }
 })
 
@@ -66,12 +65,7 @@ app.post('/auth/register', registerValidation, async (req, res) => {
     });
     const user = await doc.save();
 
-    const token = jwt.sign({
-      _id: user._id
-    },
-     'secret123',
-     {expiresIn: '30d'}
-    );
+    const token = jwt.sign({_id: user._id}, 'secret123', {expiresIn: '30d'});
     const {passwordHash, ...userData} = user._doc;
     res.json({...userData, token});
   } catch (error) {
@@ -79,6 +73,16 @@ app.post('/auth/register', registerValidation, async (req, res) => {
     res.status(500).json({
       message: 'Failed to register user'
     });
+  }
+})
+
+app.get('/auth/me', checkAuth, (req, res) => {
+  try {
+    res.json({
+      success: true
+    })
+  } catch (error) {
+    console.error(error);
   }
 })
 
