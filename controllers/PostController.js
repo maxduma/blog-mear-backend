@@ -32,6 +32,26 @@ export const getOne = async (req, res) => {
   }
 }
 
+export const remove = async (req, res) => {
+  try {
+    const postId = req.params.id;
+    PostModel.findOneAndDelete({_id:  postId})
+    .then(() => {
+      res.json({ success: true})
+    })
+    .catch((err) => {
+      res.status(404).json({
+        message: 'Failed to delete article'
+      });
+    })
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: 'Failed to retrieve articles'
+    });
+  }
+}
+
 export const create = async (req, res) => {
   try {
     const doc = new PostModel({
