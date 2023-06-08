@@ -17,13 +17,13 @@ const app = express();
 
 app.use(express.json())
 
-app.post('/auth/login', loginValidation, UserController.login);
+app.post('/auth/login', UserController.login);
 app.post('/auth/register', registerValidation, UserController.register);
 app.get('/auth/me', checkAuth, UserController.getMe);
 
-// app.get('/posts', PostController.getAll);
-// app.get('/posts/:id', checkAuth, PostController.getOne);
-app.post('/posts', postCreateValidation, PostController.create);
+app.get('/posts', PostController.getAll);
+app.get('/posts/:id', PostController.getOne);
+app.post('/posts', checkAuth, postCreateValidation, PostController.create);
 // app.delete('/posts', checkAuth, PostController.remove);
 // app.patch('/posts', checkAuth, PostController.update);
 
