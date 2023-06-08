@@ -76,13 +76,18 @@ app.post('/auth/register', registerValidation, async (req, res) => {
   }
 })
 
-app.get('/auth/me', checkAuth, (req, res) => {
+app.get('/auth/me', checkAuth, async (req, res) => {
   try {
-    res.json({
-      success: true
-    })
+    const user = await UserModel.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({message: 'User not found'})
+    }
+
+    const {passwordHash, ...userData} = user._doc;
+    res.json({...userData});
   } catch (error) {
-    console.error(error);
+    return res.status(500).json({message: 'no access'});
   }
 })
 
