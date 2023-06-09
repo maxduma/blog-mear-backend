@@ -71,3 +71,30 @@ export const create = async (req, res) => {
     });
   }
 }
+
+export const update = async (req, res) => {
+  try {
+    const postId = req.params.id;
+    await PostModel.updateOne({_id:  postId}, 
+      {
+        title: req.body.title,
+        text: req.body.text,
+        tags: req.body.tags,
+        imageUrl: req.body.imageUrl,
+        user: req.userId
+      })
+    .then(() => {
+      res.json({ success: true})
+    })
+    .catch((err) => {
+      res.status(404).json({
+        message: 'Failed to update article'
+      });
+    })
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: 'Failed to update article'
+    });
+  }
+}
