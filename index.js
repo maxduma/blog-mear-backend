@@ -42,10 +42,10 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
   });
 });
 
-app.post('/posts', checkAuth, postCreateValidation, PostController.create);
+app.post('/posts', checkAuth, postCreateValidation, handleValidationErrors, PostController.create);
 app.get('/posts', PostController.getAll);
 app.get('/posts/:id', PostController.getOne);
-app.patch('/posts/:id', checkAuth, postCreateValidation, PostController.update);
+app.patch('/posts/:id', checkAuth, postCreateValidation, handleValidationErrors, PostController.update);
 app.delete('/posts/:id', checkAuth, PostController.remove);
 
 app.listen(4444, (err) => {
